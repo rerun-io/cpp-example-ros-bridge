@@ -25,6 +25,7 @@
   <!-- Use depend as a shortcut for packages that are both build and exec dependencies -->
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
   <depend>geometry_msgs</depend>
   <depend>yaml-cpp</depend>
   <!--   Note that this is equivalent to the following: -->
