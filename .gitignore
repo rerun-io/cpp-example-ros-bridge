@@ -1,16 +1,8 @@
 # pixi environments
 .pixi
 
-# ROS workspace dirs
-build
-devel
-logs
-
 # catkin workspace
-src/CMakeLists.txt
-.catkin_workspace
-.catkin_tools
-.cache
+noetic_ws
 
 # miscellaneous
 compile_commands.json

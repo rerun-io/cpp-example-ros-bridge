@@ -16,7 +16,7 @@ find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 include(FetchContent)
-FetchContent_Declare(rerun_sdk URL https://build.rerun.io/commit/82f30f5/rerun_cpp_sdk.zip)
+FetchContent_Declare(rerun_sdk URL https://build.rerun.io/commit/13dc615/rerun_cpp_sdk.zip)
 FetchContent_MakeAvailable(rerun_sdk)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
