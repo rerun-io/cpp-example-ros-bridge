@@ -1,0 +1,30 @@
+topic_to_entity_path:
+  /snappy_cam/stereo_l: /groundtruth/pose/snappy_cam/stereo_l
+  /snappy_cam/stereo_r: /groundtruth/pose/snappy_cam/stereo_r
+extra_transform3ds:
+  - entity_path: /groundtruth/pose/snappy_cam/stereo_l
+    transform: [
+      -0.028228787368606456, -0.999601488301944, 1.2175294828553618e-05, 0.02172388268966517, 
+      0.014401251861751119, -0.00041887083271471837, -0.9998962088597202, -6.605455433829172e-05,
+      0.999497743623523, -0.028225682131089447, 0.014407337010089172, -0.00048817563004522853,
+      0.0, 0.0, 0.0, 1.0
+    ]
+    from_parent: true
+  - entity_path: /groundtruth/pose/snappy_cam/stereo_r
+    transform: [
+      -0.011823057800830705, -0.9998701444077991, -0.010950325390841398, -0.057904961033265645,
+      0.011552991631909482, 0.01081376681432078, -0.9998747875767439, 0.00043766687615362694,
+      0.9998633625093938, -0.011948086424720228, 0.011423639621249038, -0.00039944945687402214,
+      0.0, 0.0, 0.0, 1.0
+    ]
+    from_parent: true
+extra_pinholes:
+  - entity_path: /groundtruth/pose/snappy_cam/stereo_l
+    height: 480
+    width: 640
+    image_from_camera: [278.66723066149086, 0, 319.75221200593535, 0, 278.48991409740296, 241.96858910358173, 0, 0, 1]
+  - entity_path: /groundtruth/pose/snappy_cam/stereo_r
+    height: 480
+    width: 640
+    image_from_camera: [277.61640629770613, 0, 314.8944703346039, 0, 277.63749695723294, 236.04310050462587, 0, 0, 1]
+

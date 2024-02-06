@@ -1,32 +1,17 @@
-# Prerequisites
-*.d
+# pixi environments
+.pixi
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# ROS workspace dirs
+build
+devel
+logs
 
-# Precompiled Headers
-*.gch
-*.pch
+# catkin workspace
+src/CMakeLists.txt
+.catkin_workspace
+.catkin_tools
+.cache
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# miscellaneous
+compile_commands.json
+*.bag
