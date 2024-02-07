@@ -20,7 +20,7 @@ struct rerun::CollectionAdapter<uint8_t, cv::Mat> {
     Collection<uint8_t> operator()(const cv::Mat& img) {
         assert(
             "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U
-        );
+            );
 
         return Collection<uint8_t>::borrow(img.data, img.total() * img.channels());
     }
@@ -29,7 +29,7 @@ struct rerun::CollectionAdapter<uint8_t, cv::Mat> {
     Collection<uint8_t> operator()(cv::Mat&& img) {
         assert(
             "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U
-        );
+            );
 
         std::vector<uint8_t> img_vec(img.total() * img.channels());
         img_vec.assign(img.data, img.data + img.total() * img.channels());
@@ -44,7 +44,7 @@ rerun::Collection<rerun::TensorDimension> tensor_shape(const cv::Mat& img) {
 void logImu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const sensor_msgs::Imu::ConstPtr& msg
-) {
+    ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
     rec.log(entity_path + "/x", rerun::Scalar(msg->linear_acceleration.x));
@@ -55,7 +55,7 @@ void logImu(
 void logImage(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const sensor_msgs::Image::ConstPtr& msg
-) {
+    ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
     cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
@@ -65,7 +65,7 @@ void logImage(
 void logPose(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const geometry_msgs::PoseStamped::ConstPtr& msg
-) {
+    ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
     rec.log(
@@ -77,9 +77,9 @@ void logPose(
                 msg->pose.orientation.x,
                 msg->pose.orientation.y,
                 msg->pose.orientation.z
+                )
             )
-        )
-    );
+        );
 
     // this is a somewhat hacky way to get a trajectory visualization in Rerun
     // this should be be easier in the future, see https://github.com/rerun-io/rerun/issues/723
@@ -88,16 +88,16 @@ void logPose(
         trajectory_entity_path,
         rerun::Points3D(
             {{static_cast<float>(msg->pose.position.x),
-              static_cast<float>(msg->pose.position.y),
-              static_cast<float>(msg->pose.position.z)}}
-        )
-    );
+            static_cast<float>(msg->pose.position.y),
+            static_cast<float>(msg->pose.position.z)}}
+            )
+        );
 }
 
 void logOdometry(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const nav_msgs::Odometry::ConstPtr& msg
-) {
+    ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
     rec.log(
@@ -107,20 +107,20 @@ void logOdometry(
                 msg->pose.pose.position.x,
                 msg->pose.pose.position.y,
                 msg->pose.pose.position.z
-            ),
+                ),
             rerun::Quaternion::from_wxyz(
                 msg->pose.pose.orientation.w,
                 msg->pose.pose.orientation.x,
                 msg->pose.pose.orientation.y,
                 msg->pose.pose.orientation.z
+                )
             )
-        )
-    );
+        );
 }
 
 std::string getEntityPath(
     const std::map<std::string, std::string>& topic_to_entity_path, const std::string& topic
-) {
+    ) {
     if (topic_to_entity_path.find(topic) != topic_to_entity_path.end()) {
         return topic_to_entity_path.at(topic);
     } else {
@@ -183,8 +183,8 @@ int main(int argc, char** argv) {
                         rerun::Vec3D(translation),
                         rerun::Mat3x3(mat3x3),
                         extra_transform3d["from_parent"].as<bool>()
-                    )
-                );
+                        )
+                    );
             }
         }
         if (config["extra_pinholes"]) {
@@ -204,11 +204,11 @@ int main(int argc, char** argv) {
                 rec.log_timeless(
                     extra_pinhole["entity_path"].as<std::string>(),
                     rerun::Pinhole(image_from_camera)
-                        .with_resolution(
-                            extra_pinhole["width"].as<int>(),
-                            extra_pinhole["height"].as<int>()
+                    .with_resolution(
+                        extra_pinhole["width"].as<int>(),
+                        extra_pinhole["height"].as<int>()
                         )
-                );
+                    );
             }
         }
     }
@@ -216,7 +216,9 @@ int main(int argc, char** argv) {
     while (ros::ok()) {
         ros::spinOnce();
 
-        // TODO do this less frequently
+        // NOTE We are currently checking in each iteration if there are new topics.
+        //   This is not efficient, but it's the easiest way to support new topics being added at runtime.
+        //   If you have a lot of topics, you might want to optimize this.
         ros::master::V_TopicInfo topic_infos;
         ros::master::getTopics(topic_infos);
         for (const auto& topic_info : topic_infos) {
@@ -227,43 +229,39 @@ int main(int argc, char** argv) {
                         topic_info.name,
                         100,
                         [&, entity_path](const sensor_msgs::Image::ConstPtr& msg) {
-                            logImage(rec, entity_path, msg);
+                        logImage(rec, entity_path, msg);
                         }
-                    );
+                        );
                 } else if (topic_info.datatype == "sensor_msgs/Imu") {
                     topic_to_subscriber[topic_info.name] = nh.subscribe<sensor_msgs::Imu>(
                         topic_info.name,
                         1000,
                         [&, entity_path](const sensor_msgs::Imu::ConstPtr& msg) {
-                            logImu(rec, entity_path, msg);
+                        logImu(rec, entity_path, msg);
                         }
-                    );
+                        );
                 } else if (topic_info.datatype == "geometry_msgs/PoseStamped") {
                     topic_to_subscriber[topic_info.name] = nh.subscribe<geometry_msgs::PoseStamped>(
                         topic_info.name,
                         1000,
                         [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
-                            logPose(rec, entity_path, msg);
+                        logPose(rec, entity_path, msg);
                         }
-                    );
+                        );
                 } else if (topic_info.datatype == "nav_msgs/Odometry") {
                     topic_to_subscriber[topic_info.name] = nh.subscribe<nav_msgs::Odometry>(
                         topic_info.name,
                         1000,
                         [&, entity_path](const nav_msgs::Odometry::ConstPtr& msg) {
-                            logOdometry(rec, entity_path, msg);
+                        logOdometry(rec, entity_path, msg);
                         }
-                    );
+                        );
                 }
             }
         }
 
         loop_rate.sleep();
     }
-
-    // TODO support camera info topic
-    // TODO support tf
-    // TODO support urdf logging
 
     return 0;
 }
