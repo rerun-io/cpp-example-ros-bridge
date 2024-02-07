@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rerun_logger</name>
+  <version>0.1.0</version>
+  <description>The rerun_logger package</description>
+  <maintainer email="opensource@rerun.io">rerun.io</maintainer>
+  <license>Apache-2.0</license>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
+  <depend>yaml-cpp</depend>
+  <buildtool_depend>catkin</buildtool_depend>
+</package>

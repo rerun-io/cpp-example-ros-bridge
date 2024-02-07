@@ -1,32 +1,9 @@
-# Prerequisites
-*.d
+# pixi environments
+.pixi
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# catkin workspace
+noetic_ws
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# miscellaneous
+compile_commands.json
+*.bag
