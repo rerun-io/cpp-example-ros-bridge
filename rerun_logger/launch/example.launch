@@ -1,6 +1,6 @@
 <launch>
   <!-- Publishes the voxel grid to rviz for display -->
-  <node pkg="rosbag" type="play" name="player" args="-s 31.0 -u 47.0 -r 2.0 /home/leo/rerun_material/rosbag/indoor_forward_3_snapdragon_with_gt.bag">
+  <node pkg="rosbag" type="play" name="player" args="-s 11.0 -u 47.0 -r 2.0 $(find rerun_logger)/indoor_forward_3_snapdragon_with_gt.bag">
   </node>
 
   <!-- Run the logger node -->

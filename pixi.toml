@@ -11,9 +11,13 @@ version = "0.1.0"
 
 [tasks]
 pip_reqs = { cmd = "python -m ensurepip && python -m pip install -r requirements.txt"}
+
 ws = { cmd = "mkdir -p noetic_ws/src && ln -sfn $(pwd)/rerun_logger noetic_ws/src/rerun_logger", cwd = "." }
-build = { cmd = "ls && catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON", depends_on = ["ws"], cwd = "noetic_ws"}
-example_data = { cmd = "curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag", depends_on=["ws"], cwd = "noetic_ws"}
+
+build = { cmd = "ls && catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON", depends_on = ["ws"], cwd = "noetic_ws"}
+
+example_data = { cmd = "curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag", depends_on=["ws"], cwd = "noetic_ws/src/rerun_logger"}
+
 example = { cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_logger example.launch'", depends_on = [ "build", "example_data", "ws", "pip_reqs"], cwd = "noetic_ws" }
 
 [dependencies]
@@ -21,3 +25,5 @@ ros-noetic-desktop = ">=1.5.0,<1.6"
 compilers = ">=1.7.0,<1.8"
 opencv = ">=4.9.0,<4.10"
 yaml-cpp = ">=0.8.0,<0.9"
+ros-noetic-catkin = ">=0.8.10,<0.9"
+ros-noetic-rosbag = ">=1.16.0,<1.17"
