@@ -1,0 +1,11 @@
+<launch>
+  <!-- Publishes the voxel grid to rviz for display -->
+  <node pkg="rosbag" type="play" name="player" args="-s 11.0 -u 47.0 -r 2.0 $(find rerun_bridge)/indoor_forward_3_snapdragon_with_gt.bag">
+  </node>
+
+  <!-- Run the logger node -->
+  <node name="rerun_bridge_node" pkg="rerun_bridge" type="visualizer" output="screen">
+    <rosparam param="yaml_path" subst_value="True">$(find rerun_bridge)/launch/example_params.yaml</rosparam>
+  </node>
+
+</launch>
