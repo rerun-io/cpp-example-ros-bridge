@@ -1,4 +1,4 @@
-# C++ Example: ROS Logger
+# C++ Example: ROS Bridge
 
 This is an example that shows how to use Rerun's C++ API to log and visualize [ROS](https://www.ros.org/) messages. 
 
