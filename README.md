@@ -15,7 +15,7 @@ The easiest way to get started is to install [pixi](https://prefix.dev/docs/pixi
 
 The pixi environment described in `pixi.toml` contains all of the dependencies, including a sample rosbag from [here](https://fpv.ifi.uzh.ch/datasets/), and the Rerun viewer. This allows you to run the example with a single command:
 ```bash
-pixi run example
+pixi run drone_example
 ```
 
 ## Compile and run using existing ROS environment

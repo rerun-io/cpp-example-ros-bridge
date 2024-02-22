@@ -1,0 +1,11 @@
+<launch>
+  <!-- Publishes the voxel grid to rviz for display -->
+  <node pkg="rosbag" type="play" name="player" args="-s 0.0 -u 100.0 -r 1.0 $(find rerun_bridge)/spot_sample_bag_all_data.bag">
+  </node>
+
+  <!-- Run the Rerun bridge node -->
+  <node name="rerun_bridge_node" pkg="rerun_bridge" type="visualizer" output="screen">
+    <rosparam param="yaml_path" subst_value="True">$(find rerun_bridge)/launch/spot_example_params.yaml</rosparam>
+  </node>
+
+</launch>
