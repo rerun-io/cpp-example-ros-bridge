@@ -2,6 +2,7 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
 
@@ -25,4 +26,9 @@ void log_pose_stamped(
 void log_odometry(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const nav_msgs::Odometry::ConstPtr& msg
+);
+
+void log_camera_info(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const sensor_msgs::CameraInfo::ConstPtr& msg
 );

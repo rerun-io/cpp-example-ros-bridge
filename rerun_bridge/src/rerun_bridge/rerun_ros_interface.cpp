@@ -1,12 +1,9 @@
-#include <cv_bridge/cv_bridge.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/Imu.h>
-#include <nav_msgs/Odometry.h>
-#include <rerun.hpp>
-#include <rerun_bridge/rerun_ros_interface.hpp>
-
+#include "rerun_bridge/rerun_ros_interface.hpp"
 #include "collection_adapters.hpp"
+
+#include <cv_bridge/cv_bridge.h>
+#include <rerun.hpp>
+
 
 void log_imu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
@@ -81,6 +78,30 @@ void log_odometry(
                 msg->pose.pose.orientation.y,
                 msg->pose.pose.orientation.z
             )
+        )
+    );
+}
+
+void log_camera_info(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const sensor_msgs::CameraInfo::ConstPtr& msg
+) {
+    // Rerun uses column-major order for Mat3x3
+    const std::array<float, 9> image_from_camera = {
+        static_cast<float>(msg->K[0]),
+        static_cast<float>(msg->K[3]),
+        static_cast<float>(msg->K[6]),
+        static_cast<float>(msg->K[1]),
+        static_cast<float>(msg->K[4]),
+        static_cast<float>(msg->K[7]),
+        static_cast<float>(msg->K[2]),
+        static_cast<float>(msg->K[5]),
+        static_cast<float>(msg->K[8]),
+    };
+    rec.log(
+        entity_path,
+        rerun::Pinhole(image_from_camera).with_resolution(
+            static_cast<int>(msg->width), static_cast<int>(msg->height)
         )
     );
 }

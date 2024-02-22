@@ -1,17 +1,13 @@
 #include "visualizer_node.hpp"
+#include "rerun_bridge/rerun_ros_interface.hpp"
 
-#include <map>
-#include <string>
-
-#include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/master.h>
-#include <ros/ros.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
 #include <yaml-cpp/yaml.h>
-#include <rerun_bridge/rerun_ros_interface.hpp>
 
 RerunLoggerNode::RerunLoggerNode() {
     _rec.spawn().exit_on_failure();
@@ -130,19 +126,28 @@ void RerunLoggerNode::spin() {
                         }
                     );
                 } else if (topic_info.datatype == "geometry_msgs/PoseStamped") {
-                    _topic_to_subscriber[topic_info.name] = _nh.subscribe<geometry_msgs::PoseStamped>(
-                        topic_info.name,
-                        1000,
-                        [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
-                            log_pose_stamped(_rec, entity_path, msg);
-                        }
-                    );
+                    _topic_to_subscriber[topic_info.name] =
+                        _nh.subscribe<geometry_msgs::PoseStamped>(
+                            topic_info.name,
+                            1000,
+                            [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
+                                log_pose_stamped(_rec, entity_path, msg);
+                            }
+                        );
                 } else if (topic_info.datatype == "nav_msgs/Odometry") {
                     _topic_to_subscriber[topic_info.name] = _nh.subscribe<nav_msgs::Odometry>(
                         topic_info.name,
                         1000,
                         [&, entity_path](const nav_msgs::Odometry::ConstPtr& msg) {
                             log_odometry(_rec, entity_path, msg);
+                        }
+                    );
+                } else if (topic_info.datatype == "sensor_msgs/CameraInfo") {
+                    _topic_to_subscriber[topic_info.name] = _nh.subscribe<sensor_msgs::CameraInfo>(
+                        topic_info.name,
+                        1000,
+                        [&, entity_path](const sensor_msgs::CameraInfo::ConstPtr& msg) {
+                            log_camera_info(_rec, entity_path, msg);
                         }
                     );
                 }
