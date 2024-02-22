@@ -3,6 +3,7 @@
 
 #include <cv_bridge/cv_bridge.h>
 #include <rerun.hpp>
+#include <ros/ros.h>
 
 void log_imu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
@@ -72,6 +73,38 @@ void log_pose_stamped(
               static_cast<float>(msg->pose.position.z)}}
         )
     );
+}
+
+void log_tf_message(
+    const rerun::RecordingStream& rec,
+    const std::map<std::string, std::string>& tf_frame_to_entity_path,
+    const tf2_msgs::TFMessage::ConstPtr& msg
+) {
+    for (const auto& transform : msg->transforms) {
+        if (tf_frame_to_entity_path.find(transform.child_frame_id) == tf_frame_to_entity_path.end()) {
+            ROS_WARN("No entity path for frame_id %s, skipping", transform.child_frame_id.c_str());
+            continue;
+        }
+
+        rec.set_time_seconds("timestamp", transform.header.stamp.toSec());
+
+        rec.log(
+            tf_frame_to_entity_path.at(transform.child_frame_id),
+            rerun::Transform3D(
+                rerun::Vector3D(
+                    transform.transform.translation.x,
+                    transform.transform.translation.y,
+                    transform.transform.translation.z
+                ),
+                rerun::Quaternion::from_wxyz(
+                    transform.transform.rotation.w,
+                    transform.transform.rotation.x,
+                    transform.transform.rotation.y,
+                    transform.transform.rotation.z
+                )
+            )
+        );
+    }
 }
 
 void log_odometry(

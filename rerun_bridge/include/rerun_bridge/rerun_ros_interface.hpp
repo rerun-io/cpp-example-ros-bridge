@@ -5,6 +5,7 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
+#include <tf2_msgs/TFMessage.h>
 
 #include <rerun.hpp>
 
@@ -31,4 +32,9 @@ void log_odometry(
 void log_camera_info(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const sensor_msgs::CameraInfo::ConstPtr& msg
+);
+void log_tf_message(
+    const rerun::RecordingStream& rec,
+    const std::map<std::string, std::string>& tf_frame_to_entity_path,
+    const tf2_msgs::TFMessage::ConstPtr& msg
 );

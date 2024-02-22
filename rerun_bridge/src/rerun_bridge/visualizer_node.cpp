@@ -1,13 +1,13 @@
 #include "visualizer_node.hpp"
 #include "rerun_bridge/rerun_ros_interface.hpp"
 
+#include <tf2_msgs/TFMessage.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/master.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
-#include <yaml-cpp/yaml.h>
 
 RerunLoggerNode::RerunLoggerNode() {
     _rec.spawn().exit_on_failure();
@@ -81,34 +81,26 @@ void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
             );
         }
     }
-    if (config["extra_pinholes"]) {
-        for (const auto& extra_pinhole : config["extra_pinholes"]) {
-            // Rerun uses column-major order for Mat3x3
-            const std::array<float, 9> image_from_camera = {
-                extra_pinhole["image_from_camera"][0].as<float>(),
-                extra_pinhole["image_from_camera"][3].as<float>(),
-                extra_pinhole["image_from_camera"][6].as<float>(),
-                extra_pinhole["image_from_camera"][1].as<float>(),
-                extra_pinhole["image_from_camera"][4].as<float>(),
-                extra_pinhole["image_from_camera"][7].as<float>(),
-                extra_pinhole["image_from_camera"][2].as<float>(),
-                extra_pinhole["image_from_camera"][5].as<float>(),
-                extra_pinhole["image_from_camera"][8].as<float>(),
-            };
-            _rec.log_timeless(
-                extra_pinhole["entity_path"].as<std::string>(),
-                rerun::Pinhole(image_from_camera)
-                    .with_resolution(
-                        extra_pinhole["width"].as<int>(),
-                        extra_pinhole["height"].as<int>()
-                    )
-            );
+    if (config["tf_tree"]) {
+        // recurse through the tree and add all transforms
+        _add_tf_tree(config["tf_tree"], "");
+    }
+}
+
+void RerunLoggerNode::_add_tf_tree(const YAML::Node& node, const std::string& parent) {
+    for (const auto& child : node) {
+        auto key = child.first.as<std::string>();
+        auto value = child.second;
+        const std::string entity_path = parent + "/" + key;
+        _tf_frame_to_entity_path[key] = entity_path;
+        ROS_INFO("Mapping tf frame %s to entity path %s", key.c_str(), entity_path.c_str());
+        if (value.size() >= 1) {
+            _add_tf_tree(value, entity_path);
         }
     }
 }
 
 void RerunLoggerNode::_create_subscribers() {
-    ROS_INFO("Creating subscribers for new topics");
     // NOTE We are currently checking in each iteration if there are new topics.
     //   This is not efficient, but it's the easiest way to support new topics being added at runtime.
     //   If you have a lot of topics, you might want to optimize this.
@@ -140,6 +132,15 @@ void RerunLoggerNode::_create_subscribers() {
                         100,
                         [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
                             log_pose_stamped(_rec, entity_path, msg);
+                        }
+                    );
+            } else if (topic_info.datatype == "tf2_msgs/TFMessage") {
+                _topic_to_subscriber[topic_info.name] =
+                    _nh.subscribe<tf2_msgs::TFMessage>(
+                        topic_info.name,
+                        100,
+                        [&](const tf2_msgs::TFMessage::ConstPtr& msg) {
+                            log_tf_message(_rec, _tf_frame_to_entity_path, msg);
                         }
                     );
             } else if (topic_info.datatype == "nav_msgs/Odometry") {

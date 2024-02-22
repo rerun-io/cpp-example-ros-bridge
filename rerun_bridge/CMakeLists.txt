@@ -5,7 +5,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs nav_msgs cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs nav_msgs cv_bridge tf2_ros tf2_msgs)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
@@ -22,7 +22,7 @@ include_directories(
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp sensor_msgs nav_msgs cv_bridge
+   CATKIN_DEPENDS roscpp sensor_msgs nav_msgs cv_bridge tf2_ros tf2_msgs
    DEPENDS opencv yaml-cpp
  )
 
