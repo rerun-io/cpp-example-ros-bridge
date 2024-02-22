@@ -4,7 +4,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <rerun.hpp>
 
-
 void log_imu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const sensor_msgs::Imu::ConstPtr& msg
@@ -22,8 +21,25 @@ void log_image(
 ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
-    cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
-    rec.log(entity_path, rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img)));
+    // Depth images are 32-bit float (in meters) or 16-bit uint (in millimeters)
+    // See: https://ros.org/reps/rep-0118.html
+    if (msg->encoding == "16UC1") {
+        cv::Mat img = cv_bridge::toCvCopy(msg)->image;
+        rec.log(
+            entity_path,
+            rerun::DepthImage({img.rows, img.cols, 1}, rerun::TensorBuffer::u16(img)).with_meter(1000)
+        );
+    } else if (msg->encoding == "32FC1") {
+        // NOTE this has not been tested
+        cv::Mat img = cv_bridge::toCvCopy(msg)->image;
+        rec.log(
+            entity_path,
+            rerun::DepthImage({img.rows, img.cols}, rerun::TensorBuffer::f32(img)).with_meter(1.0)
+        );
+    } else {
+        cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
+        rec.log(entity_path, rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img)));
+    }
 }
 
 void log_pose_stamped(
@@ -100,8 +116,7 @@ void log_camera_info(
     };
     rec.log(
         entity_path,
-        rerun::Pinhole(image_from_camera).with_resolution(
-            static_cast<int>(msg->width), static_cast<int>(msg->height)
-        )
+        rerun::Pinhole(image_from_camera)
+            .with_resolution(static_cast<int>(msg->width), static_cast<int>(msg->height))
     );
 }
