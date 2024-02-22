@@ -30,6 +30,16 @@ std::string RerunLoggerNode::_topic_to_entity_path(const std::string& topic) con
     }
 }
 
+/// Convert a topic name to its immediate namespace.
+/// E.g. "/parent/camera/camera_info" -> "/parent/camera"
+std::string RerunLoggerNode::_topic_to_namespace(const std::string& topic) const {
+    auto last_slash = topic.rfind('/');
+    if (last_slash == std::string::npos) {
+        return "";
+    }
+    return topic.substr(0, last_slash);
+}
+
 void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
     const YAML::Node config = YAML::LoadFile(yaml_path);
 
@@ -143,6 +153,13 @@ void RerunLoggerNode::spin() {
                         }
                     );
                 } else if (topic_info.datatype == "sensor_msgs/CameraInfo") {
+                    // If the camera_info topic has not been explicility mapped to an entity path,
+                    // we assume that the camera_info topic is a sibling of the image topic, and
+                    // hence use the namespace of the image topic as the entity path.
+                    if (_topic_to_entity_path_map.find(topic_info.name) ==
+                        _topic_to_entity_path_map.end()) {
+                        entity_path = _topic_to_namespace(topic_info.name);
+                    }
                     _topic_to_subscriber[topic_info.name] = _nh.subscribe<sensor_msgs::CameraInfo>(
                         topic_info.name,
                         1000,

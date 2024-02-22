@@ -19,6 +19,7 @@ class RerunLoggerNode {
     void _read_yaml_config(std::string yaml_path);
 
     std::string _topic_to_entity_path(const std::string& topic) const;
+    std::string _topic_to_namespace(const std::string& topic) const;
 
     const rerun::RecordingStream _rec{"rerun_logger_node"};
     ros::NodeHandle _nh{"~"};
