@@ -27,7 +27,7 @@ void log_image(
         cv::Mat img = cv_bridge::toCvCopy(msg)->image;
         rec.log(
             entity_path,
-            rerun::DepthImage({img.rows, img.cols, 1}, rerun::TensorBuffer::u16(img)).with_meter(1000)
+            rerun::DepthImage({img.rows, img.cols}, rerun::TensorBuffer::u16(img)).with_meter(1000)
         );
     } else if (msg->encoding == "32FC1") {
         // NOTE this has not been tested

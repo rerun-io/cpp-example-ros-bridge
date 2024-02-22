@@ -24,4 +24,6 @@ class RerunLoggerNode {
     const rerun::RecordingStream _rec{"rerun_logger_node"};
     ros::NodeHandle _nh{"~"};
     ros::Rate _loop_rate{1000};
+
+    void _create_subscribers();
 };
