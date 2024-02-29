@@ -1,37 +1,55 @@
 topic_to_entity_path: {}
+  # /spot/camera/back/camera_info: /odom/body/
+  # /spot/camera/back/image: /odom/body/
+  # /spot/camera/frontleft/camera_info: /odom/body/
+  # /spot/camera/frontleft/image: /odom/body/
+  # /spot/camera/frontright/camera_info: /odom/body/
+  # /spot/camera/frontright/image: /odom/body/
+  # /spot/camera/left/camera_info: /odom/body/left/left_fisheye
+  # /spot/camera/left/image: /odom/body/left/left_fisheye
+  # /spot/camera/right/camera_info: /odom/body/right/right_fisheye
+  # /spot/camera/right/image: /odom/body/right/right_fisheye
 extra_transform3ds: []
 extra_pinholes: []
-# We need to predefine the tf-tree currently to define the entity paths
-# See: https://github.com/rerun-io/rerun/issues/5242
-tf_tree:
-  odom:
-    body:
-      base_link: {}
-      flat_body: {}
-      front_left_hip:
-        front_left_upper_leg:
-          front_left_lower_leg: {}
-      front_rail: {}
-      front_right_hip:
-        front_right_upper_leg:
-          front_right_lower_leg: {}
-      head:
-        back:
-          back_fisheye: {}
-        frontleft:
-          frontleft_fisheye: {}
-        frontright:
-          frontright_fisheye: {}
-        left:
-          left_fisheye: {}
-        right:
-          right_fisheye: {}
-      rear_left_hip:
-        rear_left_upper_leg:
-          rear_left_lower_leg: {}
-      rear_rail: {}
-      rear_right_hip:
-        rear_right_upper_leg:
-          rear_right_lower_leg: {}
-      vision: {}
-    gpe: {}
+tf:
+  fixed_freq_entity_path: null  # deactivate by setting to null
+  fixed_freq: 10.0
+  raw_entity_path: null  # deactivate by setting to null
+
+  # We need to predefine the tf-tree currently to define the entity paths
+  # See: https://github.com/rerun-io/rerun/issues/5242
+  tree:
+    odom:
+      body:
+        base_link: {}
+        flat_body: {}
+        front_left_hip:
+          front_left_upper_leg:
+            front_left_lower_leg: {}
+        front_rail: {}
+        front_right_hip:
+          front_right_upper_leg:
+            front_right_lower_leg: {}
+        head:
+          back:
+            back_fisheye: {}
+          frontleft:
+            frontleft_fisheye: {}
+          frontright:
+            frontright_fisheye: {}
+          left:
+            left_fisheye: {}
+          right:
+            right_fisheye: {}
+        rear_left_hip:
+          rear_left_upper_leg:
+            rear_left_lower_leg: {}
+        rear_rail: {}
+        rear_right_hip:
+          rear_right_upper_leg:
+            rear_right_lower_leg: {}
+        vision: {}
+      gpe: {}
+urdf:
+  file_path: ""
+  entity_path: ""

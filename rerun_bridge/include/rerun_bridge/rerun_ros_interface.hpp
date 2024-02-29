@@ -1,6 +1,7 @@
 #pragma once
 
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
@@ -33,8 +34,14 @@ void log_camera_info(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const sensor_msgs::CameraInfo::ConstPtr& msg
 );
+
 void log_tf_message(
     const rerun::RecordingStream& rec,
     const std::map<std::string, std::string>& tf_frame_to_entity_path,
     const tf2_msgs::TFMessage::ConstPtr& msg
+);
+
+void log_transform(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const geometry_msgs::TransformStamped& msg
 );

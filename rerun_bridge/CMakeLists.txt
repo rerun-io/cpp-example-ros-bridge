@@ -5,12 +5,12 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs nav_msgs cv_bridge tf2_ros tf2_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs nav_msgs geometry_msgs cv_bridge tf2_ros tf2_msgs)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 include(FetchContent)
-FetchContent_Declare(rerun_sdk URL https://github.com/rerun-io/rerun/releases/download/0.13.0/rerun_cpp_sdk.zip)
+FetchContent_Declare(rerun_sdk URL https://github.com/rerun-io/rerun/releases/download/0.14.0/rerun_cpp_sdk.zip)
 FetchContent_MakeAvailable(rerun_sdk)
 
 include_directories(
@@ -22,7 +22,7 @@ include_directories(
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp sensor_msgs nav_msgs cv_bridge tf2_ros tf2_msgs
+   CATKIN_DEPENDS roscpp sensor_msgs nav_msgs geometry_msgs cv_bridge tf2_ros tf2_msgs
    DEPENDS opencv yaml-cpp
  )
 

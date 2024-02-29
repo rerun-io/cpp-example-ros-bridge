@@ -2,8 +2,8 @@
 #include "collection_adapters.hpp"
 
 #include <cv_bridge/cv_bridge.h>
-#include <rerun.hpp>
 #include <ros/ros.h>
+#include <rerun.hpp>
 
 void log_imu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
@@ -39,7 +39,10 @@ void log_image(
         );
     } else {
         cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
-        rec.log(entity_path, rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img)));
+        rec.log(
+            entity_path,
+            rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img))
+        );
     }
 }
 
@@ -81,7 +84,8 @@ void log_tf_message(
     const tf2_msgs::TFMessage::ConstPtr& msg
 ) {
     for (const auto& transform : msg->transforms) {
-        if (tf_frame_to_entity_path.find(transform.child_frame_id) == tf_frame_to_entity_path.end()) {
+        if (tf_frame_to_entity_path.find(transform.child_frame_id) ==
+            tf_frame_to_entity_path.end()) {
             ROS_WARN("No entity path for frame_id %s, skipping", transform.child_frame_id.c_str());
             continue;
         }
@@ -151,5 +155,29 @@ void log_camera_info(
         entity_path,
         rerun::Pinhole(image_from_camera)
             .with_resolution(static_cast<int>(msg->width), static_cast<int>(msg->height))
+    );
+}
+
+void log_transform(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const geometry_msgs::TransformStamped& msg
+) {
+    rec.set_time_seconds("timestamp", msg.header.stamp.toSec());
+
+    rec.log(
+        entity_path,
+        rerun::Transform3D(
+            rerun::Vector3D(
+                msg.transform.translation.x,
+                msg.transform.translation.y,
+                msg.transform.translation.z
+            ),
+            rerun::Quaternion::from_wxyz(
+                msg.transform.rotation.w,
+                msg.transform.rotation.x,
+                msg.transform.rotation.y,
+                msg.transform.rotation.z
+            )
+        )
     );
 }
