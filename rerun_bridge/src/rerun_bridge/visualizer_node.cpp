@@ -35,9 +35,7 @@ RerunLoggerNode::RerunLoggerNode() {
 /// If the topic is explicitly mapped to an entity path, use that.
 /// Otherwise, the topic name will be automatically converted to a flattened entity path like this:
 ///   "/one/two/three/four" -> "/topics/one-two-three/four"
-std::string RerunLoggerNode::_resolve_entity_path(
-    const std::string& topic, const std::string& frame_id
-) const {
+std::string RerunLoggerNode::_resolve_entity_path(const std::string& topic) const {
     if (_topic_to_entity_path.find(topic) != _topic_to_entity_path.end()) {
         return _topic_to_entity_path.at(topic);
     } else {
@@ -52,16 +50,6 @@ std::string RerunLoggerNode::_resolve_entity_path(
 
         return "/topics" + flattened_topic;
     }
-}
-
-/// Convert a topic name to its immediate namespace.
-/// E.g. "/parent/camera/camera_info" -> "/parent/camera"
-std::string RerunLoggerNode::_topic_to_namespace(const std::string& topic) const {
-    auto last_slash = topic.rfind('/');
-    if (last_slash == std::string::npos) {
-        return "";
-    }
-    return topic.substr(0, last_slash);
 }
 
 void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
@@ -136,57 +124,19 @@ void RerunLoggerNode::_create_subscribers() {
             continue;
         }
 
-        std::string entity_path = _resolve_entity_path(topic_info.name, "");
         if (topic_info.datatype == "sensor_msgs/Image") {
-            _topic_to_subscriber[topic_info.name] =
-                _create_image_subscriber(topic_info.name, entity_path);
+            _topic_to_subscriber[topic_info.name] = _create_image_subscriber(topic_info.name);
         } else if (topic_info.datatype == "sensor_msgs/Imu") {
-            _topic_to_subscriber[topic_info.name] = _nh.subscribe<sensor_msgs::Imu>(
-                topic_info.name,
-                100,
-                [&, entity_path](const sensor_msgs::Imu::ConstPtr& msg) {
-                    log_imu(_rec, entity_path, msg);
-                }
-            );
+            _topic_to_subscriber[topic_info.name] = _create_imu_subscriber(topic_info.name);
         } else if (topic_info.datatype == "geometry_msgs/PoseStamped") {
-            _topic_to_subscriber[topic_info.name] = _nh.subscribe<geometry_msgs::PoseStamped>(
-                topic_info.name,
-                100,
-                [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
-                    log_pose_stamped(_rec, entity_path, msg);
-                }
-            );
+            _topic_to_subscriber[topic_info.name] =
+                _create_pose_stamped_subscriber(topic_info.name);
         } else if (topic_info.datatype == "tf2_msgs/TFMessage") {
-            _topic_to_subscriber[topic_info.name] = _nh.subscribe<tf2_msgs::TFMessage>(
-                topic_info.name,
-                100,
-                [&](const tf2_msgs::TFMessage::ConstPtr& msg) {
-                    log_tf_message(_rec, _tf_frame_to_entity_path, msg);
-                }
-            );
+            _topic_to_subscriber[topic_info.name] = _create_tf_message_subscriber(topic_info.name);
         } else if (topic_info.datatype == "nav_msgs/Odometry") {
-            _topic_to_subscriber[topic_info.name] = _nh.subscribe<nav_msgs::Odometry>(
-                topic_info.name,
-                100,
-                [&, entity_path](const nav_msgs::Odometry::ConstPtr& msg) {
-                    log_odometry(_rec, entity_path, msg);
-                }
-            );
+            _topic_to_subscriber[topic_info.name] = _create_odometry_subscriber(topic_info.name);
         } else if (topic_info.datatype == "sensor_msgs/CameraInfo") {
-            // If the camera_info topic has not been explicility mapped to an entity path,
-            // we assume that the camera_info topic is a sibling of the image topic, and
-            // hence use the parent as the entity path for the pinhole model.
-            if (_topic_to_entity_path.find(topic_info.name) == _topic_to_entity_path.end()) {
-                entity_path = parent_entity_path(entity_path);
-            }
-            _topic_to_subscriber[topic_info.name] = _nh.subscribe<sensor_msgs::CameraInfo>(
-                topic_info.name,
-                100,
-                [&, entity_path](const sensor_msgs::CameraInfo::ConstPtr& msg) {
-                    // use the tf_frame_to_entity_path map to find the entity path for the camera
-                    log_camera_info(_rec, entity_path, msg);
-                }
-            );
+            _topic_to_subscriber[topic_info.name] = _create_camera_info_subscriber(topic_info.name);
         }
     }
 }
@@ -195,9 +145,9 @@ void RerunLoggerNode::_print_tf_frames() const {
     ROS_INFO_STREAM(_tf_buffer.allFramesAsYAML() << std::endl);
 }
 
-ros::Subscriber RerunLoggerNode::_create_image_subscriber(
-    const std::string& topic, const std::string& entity_path
-) {
+ros::Subscriber RerunLoggerNode::_create_image_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
     return _nh.subscribe<sensor_msgs::Image>(
         topic,
         100,
@@ -216,6 +166,71 @@ ros::Subscriber RerunLoggerNode::_create_image_subscriber(
                 }
             }
             log_image(_rec, entity_path, msg);
+        }
+    );
+}
+
+ros::Subscriber RerunLoggerNode::_create_imu_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
+    return _nh.subscribe<sensor_msgs::Imu>(
+        topic,
+        100,
+        [&, entity_path](const sensor_msgs::Imu::ConstPtr& msg) { log_imu(_rec, entity_path, msg); }
+    );
+}
+
+ros::Subscriber RerunLoggerNode::_create_pose_stamped_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
+    return _nh.subscribe<geometry_msgs::PoseStamped>(
+        topic,
+        100,
+        [&, entity_path](const geometry_msgs::PoseStamped::ConstPtr& msg) {
+            log_pose_stamped(_rec, entity_path, msg);
+        }
+    );
+}
+
+ros::Subscriber RerunLoggerNode::_create_tf_message_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
+    return _nh.subscribe<tf2_msgs::TFMessage>(
+        topic,
+        100,
+        [&](const tf2_msgs::TFMessage::ConstPtr& msg) {
+            log_tf_message(_rec, _tf_frame_to_entity_path, msg);
+        }
+    );
+}
+
+ros::Subscriber RerunLoggerNode::_create_odometry_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
+    return _nh.subscribe<nav_msgs::Odometry>(
+        topic,
+        100,
+        [&, entity_path](const nav_msgs::Odometry::ConstPtr& msg) {
+            log_odometry(_rec, entity_path, msg);
+        }
+    );
+}
+
+ros::Subscriber RerunLoggerNode::_create_camera_info_subscriber(const std::string& topic) {
+    std::string entity_path = _resolve_entity_path(topic);
+
+    // If the camera_info topic has not been explicility mapped to an entity path,
+    // we assume that the camera_info topic is a sibling of the image topic, and
+    // hence use the parent as the entity path for the pinhole model.
+    if (_topic_to_entity_path.find(topic) == _topic_to_entity_path.end()) {
+        entity_path = parent_entity_path(entity_path);
+    }
+
+    return _nh.subscribe<sensor_msgs::CameraInfo>(
+        topic,
+        100,
+        [&, entity_path](const sensor_msgs::CameraInfo::ConstPtr& msg) {
+            log_camera_info(_rec, entity_path, msg);
         }
     );
 }

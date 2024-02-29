@@ -20,8 +20,7 @@ class RerunLoggerNode {
 
     void _read_yaml_config(std::string yaml_path);
 
-    std::string _resolve_entity_path(const std::string& topic, const std::string& frame_id) const;
-    std::string _topic_to_namespace(const std::string& topic) const;
+    std::string _resolve_entity_path(const std::string& topic) const;
 
     void _add_tf_tree(const YAML::Node& node, const std::string& parent);
 
@@ -35,5 +34,10 @@ class RerunLoggerNode {
     void _print_tf_frames() const;
 
     /* Message specific subscriber functions */
-    ros::Subscriber _create_image_subscriber(const std::string& topic, const std::string& entity_path);
+    ros::Subscriber _create_image_subscriber(const std::string& topic);
+    ros::Subscriber _create_imu_subscriber(const std::string& topic);
+    ros::Subscriber _create_pose_stamped_subscriber(const std::string& topic);
+    ros::Subscriber _create_tf_message_subscriber(const std::string& topic);
+    ros::Subscriber _create_odometry_subscriber(const std::string& topic);
+    ros::Subscriber _create_camera_info_subscriber(const std::string& topic);
 };
