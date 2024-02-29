@@ -93,24 +93,33 @@ void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
             );
         }
     }
-    if (config["tf"] && config["tf"]["tree"]) {
-        // set root frame, all messages with frame_id will be logged relative to this frame
-        _root_frame = config["tf"]["tree"].begin()->first.as<std::string>();
+    if (config["tf"]) {
+        if (config["tf"]["update_rate"]) {
+            _tf_fixed_rate = config["tf"]["update_rate"].as<float>();
+        }
 
-        // recurse through the tree and add all transforms
-        _add_tf_tree(config["tf"]["tree"], "");
+        if (config["tf"]["tree"]) {
+            // set root frame, all messages with frame_id will be logged relative to this frame
+            _root_frame = config["tf"]["tree"].begin()->first.as<std::string>();
+
+            // recurse through the tree and add all transforms
+            _add_tf_tree(config["tf"]["tree"], "", "");
+        }
     }
 }
 
-void RerunLoggerNode::_add_tf_tree(const YAML::Node& node, const std::string& parent) {
+void RerunLoggerNode::_add_tf_tree(
+    const YAML::Node& node, const std::string& parent_entity_path, const ::std::string& parent_frame
+) {
     for (const auto& child : node) {
-        auto key = child.first.as<std::string>();
+        auto frame = child.first.as<std::string>();
         auto value = child.second;
-        const std::string entity_path = parent + "/" + key;
-        _tf_frame_to_entity_path[key] = entity_path;
-        ROS_INFO("Mapping tf frame %s to entity path %s", key.c_str(), entity_path.c_str());
+        const std::string entity_path = parent_entity_path + "/" + frame;
+        _tf_frame_to_entity_path[frame] = entity_path;
+        _tf_frame_to_parent[frame] = parent_frame;
+        ROS_INFO("Mapping tf frame %s to entity path %s", frame.c_str(), entity_path.c_str());
         if (value.size() >= 1) {
-            _add_tf_tree(value, entity_path);
+            _add_tf_tree(value, entity_path, frame);
         }
     }
 }
@@ -141,8 +150,34 @@ void RerunLoggerNode::_create_subscribers() {
     }
 }
 
-void RerunLoggerNode::_print_tf_frames() const {
-    ROS_INFO_STREAM(_tf_buffer.allFramesAsYAML() << std::endl);
+void RerunLoggerNode::_update_tf() const {
+    // NOTE We log the interpolated transforms with an offset assuming the whole tree has
+    //  been updated after this offset. This is not an ideal solution. If a frame is updated
+    //  with a delay longer than this offset we will never log interpolated transforms for it.
+    //  It might be possible to always log the interpolated transforms on a per frame basis whenever
+    //  a new message is received for that frame. This would require maintaining the latest
+    //  transform for each frame. However, this would not work if transforms for a frame arrive
+    //  out of order (maybe this is not a problem in practice?).
+
+    auto now = ros::Time::now();
+    for (const auto& [frame, entity_path] : _tf_frame_to_entity_path) {
+        auto parent = _tf_frame_to_parent.find(frame);
+        if (parent == _tf_frame_to_parent.end() or parent->second.empty()) {
+            continue;
+        }
+        try {
+            auto transform =
+                _tf_buffer.lookupTransform(parent->second, frame, now - ros::Duration(1.0));
+            log_transform(_rec, entity_path, transform);
+        } catch (tf2::TransformException& ex) {
+            ROS_WARN(
+                "Skipping interpolated logging for %s -> %s because %s",
+                parent->second.c_str(),
+                frame.c_str(),
+                ex.what()
+            );
+        }
+    }
 }
 
 ros::Subscriber RerunLoggerNode::_create_image_subscriber(const std::string& topic) {
@@ -195,13 +230,10 @@ ros::Subscriber RerunLoggerNode::_create_pose_stamped_subscriber(const std::stri
 ros::Subscriber RerunLoggerNode::_create_tf_message_subscriber(const std::string& topic) {
     std::string entity_path = _resolve_entity_path(topic);
 
-    return _nh.subscribe<tf2_msgs::TFMessage>(
-        topic,
-        100,
-        [&](const tf2_msgs::TFMessage::ConstPtr& msg) {
+    return _nh
+        .subscribe<tf2_msgs::TFMessage>(topic, 100, [&](const tf2_msgs::TFMessage::ConstPtr& msg) {
             log_tf_message(_rec, _tf_frame_to_entity_path, msg);
-        }
-    );
+        });
 }
 
 ros::Subscriber RerunLoggerNode::_create_odometry_subscriber(const std::string& topic) {
@@ -239,8 +271,14 @@ void RerunLoggerNode::spin() {
     // check for new topics every 0.1 seconds
     ros::Timer timer =
         _nh.createTimer(ros::Duration(0.1), [&](const ros::TimerEvent&) { _create_subscribers(); });
-    ros::Timer tf_timer =
-        _nh.createTimer(ros::Duration(0.1), [&](const ros::TimerEvent&) { _print_tf_frames(); });
+
+    ros::Timer tf_timer;
+    if (_tf_fixed_rate != 0.0) {
+        tf_timer =
+            _nh.createTimer(ros::Duration(1.0 / _tf_fixed_rate), [&](const ros::TimerEvent&) {
+                _update_tf();
+            });
+    }
 
     ros::MultiThreadedSpinner spinner(8); // Use 8 threads
     spinner.spin();
