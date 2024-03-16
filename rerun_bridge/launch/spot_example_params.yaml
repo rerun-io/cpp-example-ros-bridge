@@ -1,14 +1,4 @@
 topic_to_entity_path: {}
-  # /spot/camera/back/camera_info: /odom/body/
-  # /spot/camera/back/image: /odom/body/
-  # /spot/camera/frontleft/camera_info: /odom/body/
-  # /spot/camera/frontleft/image: /odom/body/
-  # /spot/camera/frontright/camera_info: /odom/body/
-  # /spot/camera/frontright/image: /odom/body/
-  # /spot/camera/left/camera_info: /odom/body/left/left_fisheye
-  # /spot/camera/left/image: /odom/body/left/left_fisheye
-  # /spot/camera/right/camera_info: /odom/body/right/right_fisheye
-  # /spot/camera/right/image: /odom/body/right/right_fisheye
 extra_transform3ds: []
 extra_pinholes: []
 tf:
