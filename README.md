@@ -8,14 +8,18 @@ https://github.com/rerun-io/cpp-example-ros-bridge/assets/9785832/797741a6-ab00-
 
 This example is built for ROS 1. For more ROS examples, also check out the [ROS 2 example](https://www.rerun.io/docs/howto/ros2-nav-turtlebot), and the [URDF data-loader](https://github.com/rerun-io/rerun-loader-python-example-urdf).
 
-> NOTE: Currently only `geometry_msgs/PoseStamped`, `nav_msgs/Odometry`, `sensor_msgs/Image`, and `sensor_msgs/Imu` are supported. However, extending to other messages should be straightforward. This node does not support tf, URDF, and `camera_info` out-of-the-box yet.
+> NOTE: Currently only `geometry_msgs/{PoseStamped,TransformStamped}`, `nav_msgs/Odometry`,  `tf2_msgs/TFMessage`, `sensor_msgs/{Image,CameraInfo,Imu}` are supported. However, extending to other messages should be straightforward.
 
 ## Compile and run using pixi
 The easiest way to get started is to install [pixi](https://prefix.dev/docs/pixi/overview).
 
-The pixi environment described in `pixi.toml` contains all of the dependencies, including a sample rosbag from [here](https://fpv.ifi.uzh.ch/datasets/), and the Rerun viewer. This allows you to run the example with a single command:
+The pixi environment described in `pixi.toml` contains all required dependencies, including rosbags, and the Rerun viewer. To run the [drone example](https://fpv.ifi.uzh.ch/datasets/) use
 ```bash
 pixi run drone_example
+```
+and to run the [Spot example](http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/) use
+```bash
+pixi run spot_example
 ```
 
 ## Compile and run using existing ROS environment
