@@ -25,7 +25,7 @@ cwd = "noetic_ws/src/rerun_bridge"
 
 [tasks.drone_example]
 cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge drone_example.launch'"
-depends_on = [ "build", "drone_example_data", "ws", "rerun_viewer"]
+depends_on = ["build", "drone_example_data", "ws", "rerun_viewer"]
 cwd = "noetic_ws"
 
 # Get the spot_description package from the heuristicus/spot_ros repository
@@ -63,11 +63,11 @@ cmd = "python -m ensurepip"
 
 [tasks.rerun_viewer]
 cmd = "pip3 install --pre -f https://build.rerun.io/commit/dab0322/wheels --upgrade rerun-sdk"
-depends_on = [ "pip3"]
+depends_on = ["pip3"]
 
 [tasks.rerun_urdf_loader]
 cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git@leo/sdk-logging"
-depends_on = [ "pip3", "rerun_viewer"]
+depends_on = ["pip3", "rerun_viewer"]
 
 [dependencies]
 compilers = ">=1.7.0,<1.8"
