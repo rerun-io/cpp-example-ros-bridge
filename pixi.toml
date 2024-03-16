@@ -30,7 +30,8 @@ cwd = "noetic_ws"
 
 # Get the spot_description package from the heuristicus/spot_ros repository
 #
-# To avoid the slow git clone, we check if the directory already exists
+# To avoid the slow git clone, we check if the directory already exists.
+# To avoid extra dependencies we only use the spot_description package not the whole metapackage.
 [tasks.spot_description]
 cmd = """
 cd spot_description
