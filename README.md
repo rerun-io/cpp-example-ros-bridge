@@ -8,7 +8,7 @@ https://github.com/rerun-io/cpp-example-ros-bridge/assets/9785832/797741a6-ab00-
 
 This example is built for ROS 1. For more ROS examples, also check out the [ROS 2 example](https://www.rerun.io/docs/howto/ros2-nav-turtlebot), and the [URDF data-loader](https://github.com/rerun-io/rerun-loader-python-example-urdf).
 
-> NOTE: Currently only `geometry_msgs/{PoseStamped,TransformStamped}`, `nav_msgs/Odometry`,  `tf2_msgs/TFMessage`, `sensor_msgs/{Image,CameraInfo,Imu}` are supported. However, extending to other messages should be straightforward.
+> NOTE: Currently only `geometry_msgs/{PoseStamped,TransformStamped}`, `nav_msgs/Odometry`,  `tf2_msgs/TFMessage`, and `sensor_msgs/{Image,CameraInfo,Imu}` are supported. However, extending to other messages should be straightforward.
 
 ## Compile and run using pixi
 The easiest way to get started is to install [pixi](https://prefix.dev/docs/pixi/overview).
