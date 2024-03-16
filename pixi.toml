@@ -9,25 +9,65 @@ platforms = ["linux-64"]
 repository = "https://github.com/rerun-io/cpp-example-ros"
 version = "0.1.0"
 
-[tasks]
-ws = { cmd = "mkdir -p noetic_ws/src && ln -sfn $(pwd)/rerun_bridge noetic_ws/src/rerun_bridge", cwd = "." }
+[tasks.ws]
+cmd = "mkdir -p noetic_ws/src && ln -sfn $(pwd)/rerun_bridge noetic_ws/src/rerun_bridge"
+cwd = "."
 
-build = { cmd = "ls && catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON", depends_on = ["ws"], cwd = "noetic_ws"}
+[tasks.build]
+cmd = "ls && catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+depends_on = ["ws"]
+cwd = "noetic_ws"
 
-drone_example_data = { cmd = "curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag", depends_on=["ws"], cwd = "noetic_ws/src/rerun_bridge"}
-drone_example = { cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge drone_example.launch'", depends_on = [ "build", "drone_example_data", "ws", "rerun_viewer"], cwd = "noetic_ws" }
+[tasks.drone_example_data]
+cmd = "curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag"
+depends_on = ["ws"]
+cwd = "noetic_ws/src/rerun_bridge"
+
+[tasks.drone_example]
+cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge drone_example.launch'"
+depends_on = [ "build", "drone_example_data", "ws", "rerun_viewer"]
+cwd = "noetic_ws"
 
 # Get the spot_description package from the heuristicus/spot_ros repository
-# 
+#
 # To avoid the slow git clone, we check if the directory already exists
-spot_description = { cmd = "cd spot_description || (git clone https://github.com/heuristicus/spot_ros.git && mv spot_ros/spot_description .  && rm -rf spot_ros)" , cwd ="noetic_ws/src", depends_on = ["ws"]}
+[tasks.spot_description]
+cmd = """
+cd spot_description
+|| (git clone https://github.com/heuristicus/spot_ros.git
+    && mv spot_ros/spot_description .
+    && rm -rf spot_ros)
+"""
+cwd = "noetic_ws/src"
+depends_on = ["ws"]
 
-spot_example_data = { cmd = "curl -L -C - -O http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/spot_sample_bag_all_data.bag", depends_on=["ws"], cwd = "noetic_ws/src/rerun_bridge"}
-spot_example = { cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge spot_example.launch'", depends_on = [ "build", "spot_example_data", "ws", "rerun_viewer", "spot_description", "rerun_urdf_loader"], cwd = "noetic_ws" }
+[tasks.spot_example_data]
+cmd = "curl -L -C - -O http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/spot_sample_bag_all_data.bag"
+depends_on=["ws"]
+cwd = "noetic_ws/src/rerun_bridge"
 
-pip3 = { cmd = "python -m ensurepip" }
-rerun_viewer = { cmd = "pip3 install --pre -f https://build.rerun.io/commit/dab0322/wheels --upgrade rerun-sdk", depends_on = [ "pip3"] }
-rerun_urdf_loader = { cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git@leo/sdk-logging", depends_on = [ "pip3", "rerun_viewer"] }
+[tasks.spot_example]
+cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge spot_example.launch'"
+depends_on = [
+    "build",
+    "spot_example_data",
+    "ws",
+    "rerun_viewer",
+    "spot_description",
+    "rerun_urdf_loader"
+]
+cwd = "noetic_ws"
+
+[tasks.pip3]
+cmd = "python -m ensurepip"
+
+[tasks.rerun_viewer]
+cmd = "pip3 install --pre -f https://build.rerun.io/commit/dab0322/wheels --upgrade rerun-sdk"
+depends_on = [ "pip3"]
+
+[tasks.rerun_urdf_loader]
+cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git@leo/sdk-logging"
+depends_on = [ "pip3", "rerun_viewer"]
 
 [dependencies]
 compilers = ">=1.7.0,<1.8"
