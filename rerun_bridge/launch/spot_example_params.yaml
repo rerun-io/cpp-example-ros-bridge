@@ -49,5 +49,5 @@ tf:
         vision: {}
       gpe: {}
 urdf:
-  file_path: ""
-  entity_path: ""
+  file_path: "package://spot_description/urdf/spot.urdf.xacro"
+  entity_path: "odom"

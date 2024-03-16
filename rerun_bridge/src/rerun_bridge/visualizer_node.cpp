@@ -4,6 +4,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/master.h>
+#include <ros/package.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
@@ -16,6 +17,26 @@ std::string parent_entity_path(const std::string& entity_path) {
         return "";
     }
     return entity_path.substr(0, last_slash);
+}
+
+std::string resolve_ros_path(const std::string& path) {
+    if (path.find("package://") == 0) {
+        std::string package_name = path.substr(10, path.find('/', 10) - 10);
+        std::string relative_path = path.substr(10 + package_name.size());
+        std::string package_path = ros::package::getPath(package_name);
+        if (package_path.empty()) {
+            throw std::runtime_error(
+                "Could not resolve " + path +
+                ". Replace with relative / absolute path, source the correct ROS environment, or install " +
+                package_name + "."
+            );
+        }
+        return ros::package::getPath(package_name) + relative_path;
+    } else if (path.find("file://") == 0) {
+        return path.substr(7);
+    } else {
+        return path;
+    }
 }
 
 RerunLoggerNode::RerunLoggerNode() {
@@ -104,6 +125,19 @@ void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
 
             // recurse through the tree and add all transforms
             _add_tf_tree(config["tf"]["tree"], "", "");
+        }
+    }
+
+    if (config["urdf"]) {
+        std::string urdf_entity_path;
+        if (config["urdf"]["entity_path"]) {
+            urdf_entity_path = config["urdf"]["entity_path"].as<std::string>();
+        }
+        if (config["urdf"]["file_path"]) {
+            std::string urdf_file_path =
+                resolve_ros_path(config["urdf"]["file_path"].as<std::string>());
+            ROS_INFO("Logging URDF from file path %s", urdf_file_path.c_str());
+            _rec.log_file_from_path(urdf_file_path, urdf_entity_path, true);
         }
     }
 }

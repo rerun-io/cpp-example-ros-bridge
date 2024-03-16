@@ -35,7 +35,7 @@ class RerunLoggerNode {
     void _create_subscribers();
     void _update_tf() const;
 
-    /* Message specific subscriber functions */
+    /* Message specific subscriber factory functions */
     ros::Subscriber _create_image_subscriber(const std::string& topic);
     ros::Subscriber _create_imu_subscriber(const std::string& topic);
     ros::Subscriber _create_pose_stamped_subscriber(const std::string& topic);
