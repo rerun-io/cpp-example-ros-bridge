@@ -1,4 +1,14 @@
-topic_to_entity_path: {}
+topic_to_entity_path:
+  /spot/camera/left/image: /odom/body/head/left/left_fisheye
+  /spot/camera/left/camera_info: /odom/body/head/left/left_fisheye 
+  /spot/camera/right/image: /odom/body/head/right/right_fisheye
+  /spot/camera/right/camera_info: /odom/body/head/right/right_fisheye 
+  /spot/camera/frontleft/image: /odom/body/head/frontleft/frontleft_fisheye
+  /spot/camera/frontleft/camera_info: /odom/body/head/frontleft/frontleft_fisheye 
+  /spot/camera/frontright/image: /odom/body/head/frontright/frontright_fisheye
+  /spot/camera/frontright/camera_info: /odom/body/head/frontright/frontright_fisheye 
+  /spot/camera/back/image: /odom/body/head/back/back_fisheye
+  /spot/camera/back/camera_info: /odom/body/head/back/back_fisheye 
 extra_transform3ds: []
 extra_pinholes: []
 tf:
