@@ -18,8 +18,11 @@ cmd = "ls && catkin_make --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_
 depends_on = ["ws"]
 cwd = "noetic_ws"
 
+# Download the drone example rosbag.
+#
+# To avoid the slow download / unreliable server we only download if the file doesn't already exist.
 [tasks.drone_example_data]
-cmd = "curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag"
+cmd = "ls indoor_forward_3_snapdragon_with_gt.bag || curl -L -C - -O http://rpg.ifi.uzh.ch/datasets/uzh-fpv-newer-versions/v3/indoor_forward_3_snapdragon_with_gt.bag"
 depends_on = ["ws"]
 cwd = "noetic_ws/src/rerun_bridge"
 
@@ -28,7 +31,7 @@ cmd = "bash -c 'source ./devel/setup.bash && roslaunch rerun_bridge drone_exampl
 depends_on = ["build", "drone_example_data", "ws", "rerun_viewer"]
 cwd = "noetic_ws"
 
-# Get the spot_description package from the heuristicus/spot_ros repository
+# Get the spot_description package from the heuristicus/spot_ros repository.
 #
 # To avoid the slow git clone, we check if the directory already exists.
 # To avoid extra dependencies we only use the spot_description package not the whole metapackage.
@@ -42,8 +45,11 @@ cd spot_description
 cwd = "noetic_ws/src"
 depends_on = ["ws"]
 
+# Download the Spot example rosbag.
+#
+# To avoid the slow download / unreliable server we only download if the file doesn't already exist.
 [tasks.spot_example_data]
-cmd = "curl -L -C - -O http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/spot_sample_bag_all_data.bag"
+cmd = "ls spot_sample_bag_all_data.bag || curl -L -C - -O http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/spot_sample_bag_all_data.bag"
 depends_on=["ws"]
 cwd = "noetic_ws/src/rerun_bridge"
 
