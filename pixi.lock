@@ -243,6 +243,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tinyxml2-10.0.0-h59595ed_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/unixodbc-2.3.12-h661eb56_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/unzip-6.0-h7f98852_3.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/linux-64/urdfdom-4.0.0-hee28ff1_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/urdfdom_headers-1.1.1-h00ab1b0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/x264-1!164.3095-h166bdaf_2.tar.bz2
@@ -10675,6 +10676,20 @@ packages:
   license: LGPL-2.1
   size: 281830
   timestamp: 1691504075258
+- kind: conda
+  name: unzip
+  version: '6.0'
+  build: h7f98852_3
+  build_number: 3
+  subdir: linux-64
+  url: https://conda.anaconda.org/conda-forge/linux-64/unzip-6.0-h7f98852_3.tar.bz2
+  sha256: 29ce83db159a99eaeb816a9833481aa0eb495c6f69772e779d86ea2924bb5f06
+  md5: 7cb7109505433a5abbf68bb34b31edac
+  depends:
+  - libgcc-ng >=9.4.0
+  license: LicenseRef-BSD-like
+  size: 169143
+  timestamp: 1643809621661
 - kind: conda
   name: urdfdom
   version: 4.0.0

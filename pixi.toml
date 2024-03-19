@@ -49,7 +49,11 @@ depends_on = ["ws"]
 #
 # To avoid the slow download / unreliable server we only download if the file doesn't already exist.
 [tasks.spot_example_data]
-cmd = "ls spot_sample_bag_all_data.bag || curl -L -C - -O http://ptak.felk.cvut.cz/darpa-subt/qualification_videos/spot/spot_sample_bag_all_data.bag"
+cmd = """
+ls spot_ros1/spot_ros1.bag 
+|| (curl -L -C - -O https://storage.googleapis.com/rerun-example-datasets/spot_ros1.zip
+    && unzip spot_ros1.zip -d spot_ros1)
+"""
 depends_on=["ws"]
 cwd = "noetic_ws/src/rerun_bridge"
 
@@ -83,3 +87,4 @@ ros-noetic-catkin = ">=0.8.10,<0.9"
 ros-noetic-desktop = ">=1.5.0,<1.6"
 ros-noetic-rosbag = ">=1.16.0,<1.17"
 yaml-cpp = ">=0.8.0,<0.9"
+unzip = ">=6.0,<7"
