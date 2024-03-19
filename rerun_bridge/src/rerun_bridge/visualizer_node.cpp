@@ -204,7 +204,8 @@ void RerunLoggerNode::_update_tf() const {
                 _tf_buffer.lookupTransform(parent->second, frame, now - ros::Duration(1.0));
             log_transform(_rec, entity_path, transform);
         } catch (tf2::TransformException& ex) {
-            ROS_WARN(
+            ROS_WARN_THROTTLE(
+                1.0,
                 "Skipping interpolated logging for %s -> %s because %s",
                 parent->second.c_str(),
                 frame.c_str(),
