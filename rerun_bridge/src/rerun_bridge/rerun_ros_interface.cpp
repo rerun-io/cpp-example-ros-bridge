@@ -1,12 +1,9 @@
-#include <cv_bridge/cv_bridge.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/Imu.h>
-#include <nav_msgs/Odometry.h>
-#include <rerun.hpp>
-#include <rerun_bridge/rerun_ros_interface.hpp>
-
+#include "rerun_bridge/rerun_ros_interface.hpp"
 #include "collection_adapters.hpp"
+
+#include <cv_bridge/cv_bridge.h>
+#include <ros/ros.h>
+#include <rerun.hpp>
 
 void log_imu(
     const rerun::RecordingStream& rec, const std::string& entity_path,
@@ -25,8 +22,28 @@ void log_image(
 ) {
     rec.set_time_seconds("timestamp", msg->header.stamp.toSec());
 
-    cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
-    rec.log(entity_path, rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img)));
+    // Depth images are 32-bit float (in meters) or 16-bit uint (in millimeters)
+    // See: https://ros.org/reps/rep-0118.html
+    if (msg->encoding == "16UC1") {
+        cv::Mat img = cv_bridge::toCvCopy(msg)->image;
+        rec.log(
+            entity_path,
+            rerun::DepthImage({img.rows, img.cols}, rerun::TensorBuffer::u16(img)).with_meter(1000)
+        );
+    } else if (msg->encoding == "32FC1") {
+        // NOTE this has not been tested
+        cv::Mat img = cv_bridge::toCvCopy(msg)->image;
+        rec.log(
+            entity_path,
+            rerun::DepthImage({img.rows, img.cols}, rerun::TensorBuffer::f32(img)).with_meter(1.0)
+        );
+    } else {
+        cv::Mat img = cv_bridge::toCvCopy(msg, "rgb8")->image;
+        rec.log(
+            entity_path,
+            rerun::Image(tensor_shape(img), rerun::TensorBuffer::u8(img))
+        );
+    }
 }
 
 void log_pose_stamped(
@@ -61,6 +78,39 @@ void log_pose_stamped(
     );
 }
 
+void log_tf_message(
+    const rerun::RecordingStream& rec,
+    const std::map<std::string, std::string>& tf_frame_to_entity_path,
+    const tf2_msgs::TFMessage::ConstPtr& msg
+) {
+    for (const auto& transform : msg->transforms) {
+        if (tf_frame_to_entity_path.find(transform.child_frame_id) ==
+            tf_frame_to_entity_path.end()) {
+            ROS_WARN("No entity path for frame_id %s, skipping", transform.child_frame_id.c_str());
+            continue;
+        }
+
+        rec.set_time_seconds("timestamp", transform.header.stamp.toSec());
+
+        rec.log(
+            tf_frame_to_entity_path.at(transform.child_frame_id),
+            rerun::Transform3D(
+                rerun::Vector3D(
+                    transform.transform.translation.x,
+                    transform.transform.translation.y,
+                    transform.transform.translation.z
+                ),
+                rerun::Quaternion::from_wxyz(
+                    transform.transform.rotation.w,
+                    transform.transform.rotation.x,
+                    transform.transform.rotation.y,
+                    transform.transform.rotation.z
+                )
+            )
+        );
+    }
+}
+
 void log_odometry(
     const rerun::RecordingStream& rec, const std::string& entity_path,
     const nav_msgs::Odometry::ConstPtr& msg
@@ -80,6 +130,53 @@ void log_odometry(
                 msg->pose.pose.orientation.x,
                 msg->pose.pose.orientation.y,
                 msg->pose.pose.orientation.z
+            )
+        )
+    );
+}
+
+void log_camera_info(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const sensor_msgs::CameraInfo::ConstPtr& msg
+) {
+    // Rerun uses column-major order for Mat3x3
+    const std::array<float, 9> image_from_camera = {
+        static_cast<float>(msg->K[0]),
+        static_cast<float>(msg->K[3]),
+        static_cast<float>(msg->K[6]),
+        static_cast<float>(msg->K[1]),
+        static_cast<float>(msg->K[4]),
+        static_cast<float>(msg->K[7]),
+        static_cast<float>(msg->K[2]),
+        static_cast<float>(msg->K[5]),
+        static_cast<float>(msg->K[8]),
+    };
+    rec.log(
+        entity_path,
+        rerun::Pinhole(image_from_camera)
+            .with_resolution(static_cast<int>(msg->width), static_cast<int>(msg->height))
+    );
+}
+
+void log_transform(
+    const rerun::RecordingStream& rec, const std::string& entity_path,
+    const geometry_msgs::TransformStamped& msg
+) {
+    rec.set_time_seconds("timestamp", msg.header.stamp.toSec());
+
+    rec.log(
+        entity_path,
+        rerun::Transform3D(
+            rerun::Vector3D(
+                msg.transform.translation.x,
+                msg.transform.translation.y,
+                msg.transform.translation.z
+            ),
+            rerun::Quaternion::from_wxyz(
+                msg.transform.rotation.w,
+                msg.transform.rotation.x,
+                msg.transform.rotation.y,
+                msg.transform.rotation.z
             )
         )
     );
