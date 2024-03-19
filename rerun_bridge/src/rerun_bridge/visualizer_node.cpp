@@ -216,12 +216,13 @@ void RerunLoggerNode::_update_tf() const {
 
 ros::Subscriber RerunLoggerNode::_create_image_subscriber(const std::string& topic) {
     std::string entity_path = _resolve_entity_path(topic);
+    bool lookup_transform = (_topic_to_entity_path.find(topic) == _topic_to_entity_path.end());
 
     return _nh.subscribe<sensor_msgs::Image>(
         topic,
         100,
-        [&, entity_path](const sensor_msgs::Image::ConstPtr& msg) {
-            if (!_root_frame.empty()) {
+        [&, entity_path, lookup_transform](const sensor_msgs::Image::ConstPtr& msg) {
+            if (!_root_frame.empty() && lookup_transform) {
                 try {
                     auto transform = _tf_buffer.lookupTransform(
                         _root_frame,
