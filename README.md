@@ -2,7 +2,7 @@
 
 This is an example that shows how to use Rerun's C++ API to log and visualize [ROS](https://www.ros.org/) messages. 
 
-It works by subscribing to all topics with supported types, converting the messages, and logging the data to Rerun. It further allows to remap topic names to specific entity paths, specify additional timeless transforms, and pinhole parameters via an external config file. See the [launch](./rerun_logger/launch/) directory for usage examples.
+It works by subscribing to all topics with supported types, converting the messages, and logging the data to Rerun. It further allows to remap topic names to specific entity paths, specify additional timeless transforms, and pinhole parameters via an external config file. See the [launch](https://github.com/rerun-io/cpp-example-ros-bridge/tree/main/rerun_bridge/launch) directory for usage examples.
 
 https://github.com/rerun-io/cpp-example-ros-bridge/assets/9785832/797741a6-ab00-4334-8a49-10b84d581bf8
 
