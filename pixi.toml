@@ -67,15 +67,21 @@ depends_on = [
 ]
 cwd = "noetic_ws"
 
+# Install Rerun and URDF loader manually via pip3, this should be replaced with direct pypi dependencies in the future.
+# Wait for direct branch and find-links support in pixi. Otherwise updating to a prerelease becomes a hassle.
+# See: 
+#  https://pixi.sh/latest/reference/configuration/#pypi-dependencies-beta-feature
+#  https://github.com/prefix-dev/pixi/issues/1163
+
 [tasks.pip3]
 cmd = "python -m ensurepip"
 
 [tasks.rerun_viewer]
-cmd = "pip3 install --pre -f https://build.rerun.io/commit/dab0322/wheels --upgrade rerun-sdk"
+cmd = "pip3 install rerun-sdk==0.15"
 depends_on = ["pip3"]
 
 [tasks.rerun_urdf_loader]
-cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git@leo/sdk-logging"
+cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
 depends_on = ["pip3", "rerun_viewer"]
 
 [dependencies]
