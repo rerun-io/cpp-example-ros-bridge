@@ -2,15 +2,15 @@ cmake_minimum_required(VERSION 3.0.2)
 project(rerun_bridge)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs nav_msgs cv_bridge)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib sensor_msgs nav_msgs geometry_msgs cv_bridge tf2_ros tf2_msgs)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
 include(FetchContent)
-FetchContent_Declare(rerun_sdk URL https://github.com/rerun-io/rerun/releases/download/0.13.0/rerun_cpp_sdk.zip)
+FetchContent_Declare(rerun_sdk URL https://github.com/rerun-io/rerun/releases/download/0.15.0/rerun_cpp_sdk.zip)
 FetchContent_MakeAvailable(rerun_sdk)
 
 include_directories(
@@ -20,11 +20,11 @@ include_directories(
 )
 
 catkin_package(
-   INCLUDE_DIRS include
-   LIBRARIES ${PROJECT_NAME}
-   CATKIN_DEPENDS roscpp sensor_msgs nav_msgs cv_bridge
-   DEPENDS opencv yaml-cpp
- )
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS roscpp roslib sensor_msgs nav_msgs geometry_msgs cv_bridge tf2_ros tf2_msgs
+  DEPENDS opencv yaml-cpp
+)
 
 add_library(${PROJECT_NAME} src/rerun_bridge/rerun_ros_interface.cpp)
 add_executable(visualizer src/rerun_bridge/visualizer_node.cpp)
