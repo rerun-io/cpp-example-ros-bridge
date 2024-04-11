@@ -1,7 +1,7 @@
 <launch>
   <param name="/use_sim_time" value="true" />
 
-  <!-- Publishes the voxel grid to rviz for display -->
+  <!-- Play back the example ROS bag -->
   <node pkg="rosbag" type="play" name="player" args="--clock -s 0.0 -u 100.0 -r 1.0 $(find rerun_bridge)/spot_ros1/spot_ros1.bag">
   </node>
 
