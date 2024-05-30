@@ -114,6 +114,30 @@ void RerunLoggerNode::_read_yaml_config(std::string yaml_path) {
             );
         }
     }
+    if (config["extra_pinholes"]) {
+        for (const auto& extra_pinhole : config["extra_pinholes"]) {
+            // Rerun uses column-major order for Mat3x3
+            const std::array<float, 9> image_from_camera = {
+                extra_pinhole["image_from_camera"][0].as<float>(),
+                extra_pinhole["image_from_camera"][3].as<float>(),
+                extra_pinhole["image_from_camera"][6].as<float>(),
+                extra_pinhole["image_from_camera"][1].as<float>(),
+                extra_pinhole["image_from_camera"][4].as<float>(),
+                extra_pinhole["image_from_camera"][7].as<float>(),
+                extra_pinhole["image_from_camera"][2].as<float>(),
+                extra_pinhole["image_from_camera"][5].as<float>(),
+                extra_pinhole["image_from_camera"][8].as<float>(),
+            };
+            _rec.log_static(
+                extra_pinhole["entity_path"].as<std::string>(),
+                rerun::Pinhole(image_from_camera)
+                    .with_resolution(
+                        extra_pinhole["width"].as<int>(),
+                        extra_pinhole["height"].as<int>()
+                    )
+            );
+        }
+    }
     if (config["tf"]) {
         if (config["tf"]["update_rate"]) {
             _tf_fixed_rate = config["tf"]["update_rate"].as<float>();
