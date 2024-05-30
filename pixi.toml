@@ -73,18 +73,14 @@ cwd = "noetic_ws"
 #  https://pixi.sh/latest/reference/configuration/#pypi-dependencies-beta-feature
 #  https://github.com/prefix-dev/pixi/issues/1163
 
-[tasks.pip3]
-cmd = "python -m ensurepip"
-
 [tasks.rerun_viewer]
-cmd = "pip3 install rerun-sdk==0.16.0-rc.4"
-depends_on = ["pip3"]
+cmd = "pip install rerun-sdk==0.16"
 
 [tasks.rerun_urdf_loader]
-cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
-depends_on = ["pip3", "rerun_viewer"]
+cmd = "pip install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
 
 [dependencies]
+pip = ">=24.0,<25"  # To install rerun-sdk and rerun-loader-python-example-urdf
 compilers = ">=1.7.0,<1.8"
 opencv = ">=4.9.0,<4.10"
 ros-noetic-catkin = ">=0.8.10,<0.9"
