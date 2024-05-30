@@ -5,7 +5,7 @@ channels = ["robostack-staging", "conda-forge"]
 description = "Use the Rerun C++ SDK together with ROS"
 homepage = "https://rerun.io"
 license = "Apache-2.0"
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-arm64"]
 repository = "https://github.com/rerun-io/cpp-example-ros"
 version = "0.1.0"
 
@@ -48,11 +48,11 @@ depends_on = ["ws"]
 # Download the Spot example rosbag.
 [tasks.spot_example_data]
 cmd = """
-ls spot_ros1/spot_ros1.bag 
+ls spot_ros1/spot_ros1.bag
 || (curl -L -C - -O https://storage.googleapis.com/rerun-example-datasets/spot_ros1.zip
     && unzip spot_ros1.zip -d spot_ros1)
 """
-depends_on=["ws"]
+depends_on = ["ws"]
 cwd = "noetic_ws/src/rerun_bridge"
 
 [tasks.spot_example]
@@ -63,28 +63,24 @@ depends_on = [
     "ws",
     "rerun_viewer",
     "spot_description",
-    "rerun_urdf_loader"
+    "rerun_urdf_loader",
 ]
 cwd = "noetic_ws"
 
 # Install Rerun and URDF loader manually via pip3, this should be replaced with direct pypi dependencies in the future.
 # Wait for direct branch and find-links support in pixi. Otherwise updating to a prerelease becomes a hassle.
-# See: 
+# See:
 #  https://pixi.sh/latest/reference/configuration/#pypi-dependencies-beta-feature
 #  https://github.com/prefix-dev/pixi/issues/1163
 
-[tasks.pip3]
-cmd = "python -m ensurepip"
-
 [tasks.rerun_viewer]
-cmd = "pip3 install rerun-sdk==0.15"
-depends_on = ["pip3"]
+cmd = "pip install rerun-sdk==0.16"
 
 [tasks.rerun_urdf_loader]
-cmd = "pip3 install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
-depends_on = ["pip3", "rerun_viewer"]
+cmd = "pip install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
 
 [dependencies]
+pip = ">=24.0,<25"  # To install rerun-sdk and rerun-loader-python-example-urdf
 compilers = ">=1.7.0,<1.8"
 opencv = ">=4.9.0,<4.10"
 ros-noetic-catkin = ">=0.8.10,<0.9"
