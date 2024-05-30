@@ -1,6 +1,7 @@
 topic_to_entity_path:
   /snappy_cam/stereo_l: /groundtruth/pose/snappy_cam/stereo_l
   /snappy_cam/stereo_r: /groundtruth/pose/snappy_cam/stereo_r
+  /groundtruth/pose: /groundtruth/pose
 extra_transform3ds:
   - entity_path: /groundtruth/pose/snappy_cam/stereo_l
     transform: [
