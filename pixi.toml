@@ -80,7 +80,7 @@ cmd = "pip install rerun-sdk==0.16"
 cmd = "pip install git+https://github.com/rerun-io/rerun-loader-python-example-urdf.git"
 
 [dependencies]
-pip = ">=24.0,<25"  # To install rerun-sdk and rerun-loader-python-example-urdf
+pip = ">=24.0,<25"                   # To install rerun-sdk and rerun-loader-python-example-urdf
 compilers = ">=1.7.0,<1.8"
 opencv = ">=4.9.0,<4.10"
 ros-noetic-catkin = ">=0.8.10,<0.9"
@@ -88,3 +88,6 @@ ros-noetic-desktop = ">=1.5.0,<1.6"
 ros-noetic-rosbag = ">=1.16.0,<1.17"
 yaml-cpp = ">=0.8.0,<0.9"
 unzip = ">=6.0,<7"
+
+[target.linux-64.dependencies]
+sysroot_linux-64 = ">=2.17,<3" # rustc 1.64+ requires glibc 2.17+, see https://blog.rust-lang.org/2022/08/01/Increasing-glibc-kernel-requirements.html
